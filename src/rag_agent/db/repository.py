@@ -45,13 +45,17 @@ class DocumentRepository:
         self.db.commit()
         return True
 
-    def add_chunks(self, doc_id: str, vector_ids: list[str]) -> None:
+    def add_chunks(self, doc_id: str, chunks_data: list[tuple[str, str]]) -> None:
+        """chunks_data: list of (vector_id, content) tuples."""
         chunks = [
-            DocumentChunk(document_id=doc_id, chunk_index=i, vector_id=vid)
-            for i, vid in enumerate(vector_ids)
+            DocumentChunk(document_id=doc_id, chunk_index=i, vector_id=vid, content=content)
+            for i, (vid, content) in enumerate(chunks_data)
         ]
         self.db.bulk_save_objects(chunks)
         self.db.commit()
+
+    def get_all_chunks_with_content(self) -> list[DocumentChunk]:
+        return self.db.query(DocumentChunk).all()
 
 
 class QueryLogRepository:

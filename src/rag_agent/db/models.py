@@ -37,6 +37,7 @@ class DocumentChunk(Base):
     document_id: Mapped[str] = mapped_column(String(36), ForeignKey("documents.id"), nullable=False)
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
     vector_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)  # stored for BM25 keyword search
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     document: Mapped["Document"] = relationship("Document", back_populates="chunks")

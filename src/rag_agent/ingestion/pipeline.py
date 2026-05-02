@@ -56,7 +56,7 @@ class IngestionPipeline:
                 chunk.metadata["vector_id"] = vid
 
             self.vector_store.add_documents(chunks, ids=vector_ids)
-            self.repo.add_chunks(doc_id, vector_ids)
+            self.repo.add_chunks(doc_id, [(vid, chunk.page_content) for vid, chunk in zip(vector_ids, chunks)])
             self.repo.update_status(doc_id, "indexed", chunk_count=len(chunks))
 
             logger.info(f"Indexed '{doc_name}' — {len(chunks)} chunks (doc_id={doc_id})")
