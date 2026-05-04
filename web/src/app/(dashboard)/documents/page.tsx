@@ -1,22 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { apiDeleteDocument, apiListDocuments, apiUploadDocument } from "@/lib/api";
+import { useCallback, useRef, useState } from "react";
+import { apiUploadDocument, apiDeleteDocument } from "@/lib/api";
+import { useDocuments } from "@/hooks/useDocuments";
+import { StatusBadge } from "@/components/ui/Badge";
+import { CardSkeleton } from "@/components/ui/Skeleton";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import type { Document } from "@/types";
-
-const STATUS_STYLES: Record<string, string> = {
-  indexed: "bg-green-50 text-green-700 border-green-200",
-  indexing: "bg-blue-50 text-blue-700 border-blue-200",
-  pending: "bg-stone-50 text-stone-600 border-stone-200",
-  failed: "bg-red-50 text-red-700 border-red-200",
-};
-
-const FILE_ICONS: Record<string, string> = {
-  pdf: "PDF",
-  csv: "CSV",
-  txt: "TXT",
-  md: "MD",
-};
 
 function DocumentCard({ doc, onDelete }: { doc: Document; onDelete: (id: string) => void }) {
   const [deleting, setDeleting] = useState(false);
@@ -34,6 +25,13 @@ function DocumentCard({ doc, onDelete }: { doc: Document; onDelete: (id: string)
     year: "numeric",
   });
 
+  const FILE_ICONS: Record<string, string> = {
+    pdf: "PDF",
+    csv: "CSV",
+    txt: "TXT",
+    md: "MD",
+  };
+
   return (
     <div className="bg-white border border-stone-200 rounded-xl p-4 flex flex-col gap-3">
       <div className="flex items-start gap-3">
@@ -50,14 +48,7 @@ function DocumentCard({ doc, onDelete }: { doc: Document; onDelete: (id: string)
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span
-            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs border font-medium ${STATUS_STYLES[doc.status] ?? STATUS_STYLES.pending}`}
-          >
-            {doc.status === "indexing" && (
-              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5 animate-pulse" />
-            )}
-            {doc.status}
-          </span>
+          <StatusBadge status={doc.status} />
           {doc.status === "indexed" && (
             <span className="text-xs text-stone-400">{doc.chunk_count} chunks</span>
           )}
@@ -150,44 +141,26 @@ function UploadZone({ onUploaded }: { onUploaded: (doc: Document) => void }) {
 }
 
 export default function DocumentsPage() {
-  const [docs, setDocs] = useState<Document[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiListDocuments()
-      .then((res) => setDocs(res.documents))
-      .finally(() => setLoading(false));
-  }, []);
-
-  function handleUploaded(doc: Document) {
-    setDocs((prev) => [doc, ...prev]);
-  }
-
-  function handleDeleted(id: string) {
-    setDocs((prev) => prev.filter((d) => d.id !== id));
-  }
+  const { docs, loading, error, indexedCount, addDocument, removeDocument } = useDocuments();
 
   return (
     <div className="h-full overflow-y-auto">
       <div className="px-8 py-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-xl font-semibold text-stone-900">Documents</h1>
-          <p className="text-sm text-stone-500 mt-0.5">
-            {docs.filter((d) => d.status === "indexed").length} of {docs.length} indexed
-          </p>
-        </div>
+        <PageHeader
+          title="Documents"
+          subtitle={`${indexedCount} of ${docs.length} indexed`}
+        />
 
-        {/* Upload */}
+        <ErrorBanner message={error} />
+
         <div className="mb-8">
-          <UploadZone onUploaded={handleUploaded} />
+          <UploadZone onUploaded={addDocument} />
         </div>
 
-        {/* Document grid */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white border border-stone-200 rounded-xl p-4 h-28 animate-pulse" />
+              <CardSkeleton key={i} />
             ))}
           </div>
         ) : docs.length === 0 ? (
@@ -197,7 +170,7 @@ export default function DocumentsPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {docs.map((doc) => (
-              <DocumentCard key={doc.id} doc={doc} onDelete={handleDeleted} />
+              <DocumentCard key={doc.id} doc={doc} onDelete={removeDocument} />
             ))}
           </div>
         )}

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     cohere_api_key: str
 
     llm_model: str = "llama-3.3-70b-versatile"
-    embedding_model: str = "models/embedding-001"
+    embedding_model: str = "models/gemini-embedding-001"
 
     # ── Cohere reranking ─────────────────────────────────────────────────────
     cohere_rerank_model: str = "rerank-english-v3.0"

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { apiAnalyticsSummary } from "@/lib/api";
-import type { AnalyticsSummary } from "@/types";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { ErrorBanner } from "@/components/ui/ErrorBanner";
+import { StatSkeleton } from "@/components/ui/Skeleton";
 
 function StatCard({
   label,
@@ -23,40 +24,23 @@ function StatCard({
 }
 
 export default function AnalyticsPage() {
-  const [data, setData] = useState<AnalyticsSummary | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    apiAnalyticsSummary()
-      .then(setData)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, loading, error } = useAnalytics();
 
   return (
     <div className="h-full overflow-y-auto">
       <div className="px-8 py-6">
-        <div className="mb-6">
-          <h1 className="text-xl font-semibold text-stone-900">Analytics</h1>
-          <p className="text-sm text-stone-500 mt-0.5">Workspace usage overview</p>
-        </div>
+        <PageHeader title="Analytics" subtitle="Workspace usage overview" />
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm mb-6">
-            {error}
-          </div>
-        )}
+        <ErrorBanner message={error} />
 
         {loading ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white border border-stone-200 rounded-xl p-5 h-24 animate-pulse" />
+              <StatSkeleton key={i} />
             ))}
           </div>
         ) : data ? (
           <>
-            {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <StatCard label="Total documents" value={data.total_documents} />
               <StatCard
@@ -72,7 +56,6 @@ export default function AnalyticsPage() {
               />
             </div>
 
-            {/* Recent queries */}
             <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
               <div className="px-5 py-4 border-b border-stone-100">
                 <h2 className="text-sm font-medium text-stone-900">Recent queries</h2>

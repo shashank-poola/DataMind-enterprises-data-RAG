@@ -12,6 +12,7 @@ dependencies = [
 
     # LangChain core + integrations
     "langchain>=0.3.0",
+    "langchain-classic>=0.0.1",
     "langchain-community>=0.3.0",
     "langchain-chroma>=0.1.4",
     "langchain-groq>=0.2.0",
@@ -39,7 +40,6 @@ dependencies = [
 
     # Auth
     "python-jose[cryptography]>=3.3.0",
-    "passlib[bcrypt]>=1.7.4",
     "bcrypt>=4.0.0",
 ]
 

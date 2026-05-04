@@ -1,4 +1,4 @@
-from langchain.retrievers import EnsembleRetriever
+from langchain_classic.retrievers.ensemble import EnsembleRetriever
 from langchain_core.vectorstores import VectorStoreRetriever
 from sqlalchemy.orm import Session
 

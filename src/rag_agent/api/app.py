@@ -1,7 +1,9 @@
+import traceback
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from rag_agent.core.config import settings
 from rag_agent.core.logging import setup_logging
@@ -20,9 +22,15 @@ def create_app() -> FastAPI:
         title=settings.app_name,
         version=settings.app_version,
         lifespan=lifespan,
+        debug=True,
         docs_url="/docs" if settings.app_env != "production" else None,
         redoc_url=None,
     )
+
+    @app.exception_handler(Exception)
+    async def unhandled_exception_handler(request: Request, exc: Exception):
+        tb = traceback.format_exc()
+        return JSONResponse(status_code=500, content={"detail": str(exc), "traceback": tb})
 
     app.add_middleware(
         CORSMiddleware,
