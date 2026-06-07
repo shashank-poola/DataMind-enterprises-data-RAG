@@ -1,40 +1,139 @@
-# Enterprises Data Intelligence RAG System
+<p align="center">
+  <img src="web/public/images/logo.jpg" height="128" alt="DataMind logo" />
+</p>
 
-[Python](https://python.org/)
-[FastAPI](https://fastapi.tiangolo.com/)
-[Next.js](https://nextjs.org/)
-[LangChain](https://langchain.com/)
-[License](LICENSE)
+<h1 align="center">DataMind</h1>
 
-> Ask your documents anything. Get answers you can actually trust.
+<h3 align="center">
+  Open-Source Enterprise RAG Agent with Hybrid Retrieval
+</h3>
 
----
+<p align="center">
+  📄 <a href="http://localhost:8000/docs">API Docs</a> · 🐙 <a href="https://github.com/shashank-poola/rag-agent">GitHub</a> · 📄 <a href="LICENSE">License</a>
+</p>
 
-## Why This Exists
+<br/>
 
-Every company has knowledge trapped in documents. PDFs no one reads. CSVs no one queries. Text files buried in folders. When someone needs an answer, they either dig for hours or ask someone who digs for hours.
+<p align="center">
+  <img src="web/public/images/demoscreen.png" alt="DataMind Chat Interface" />
+</p>
 
-The obvious fix is RAG, Retrieval Augmented Generation. Feed your documents into a vector store, embed queries, retrieve similar chunks, generate an answer. Everybody's doing it.
+<br/>
 
-**Except most RAG implementations are mediocre.**
+## What is DataMind?
 
-I built a few. They worked fine on demo docs. Then I tried them on real queries — exact clause numbers, specific dates, precise product codes and watched them fail. The model hallucinated. The retrieved chunks were vaguely related but not the right ones. Confidence scores looked fine. Answers were wrong.
+DataMind is an open-source RAG (Retrieval-Augmented Generation) agent for enterprise document intelligence.
 
-The problem wasn't the LLM.
+Upload your PDFs, CSVs, and text files. Ask questions in plain English. Get precise, source-backed answers in real time, powered by hybrid search, Cohere reranking, and a streaming reasoning UI that shows every step of its thinking.
 
-**The problem was retrieval.**
+Most RAG systems fail on real queries because semantic search alone is imprecise. DataMind combines BM25 keyword search with vector similarity, then runs a cross-encoder reranker over all candidates together — so retrieval is accurate for both meaning and exact terms like clause numbers, dates, and product codes.
 
-Semantic/vector search is powerful for meaning. It's terrible for precision. Ask "what does clause 4B say about liability?" and semantic search returns everything that's vaguely about liability. BM25 — the classic keyword algorithm — finds "clause 4B" exactly.
+## Key Features
 
-Neither alone is enough. You need both.
+For **developers and data teams**:
 
-Then you need a reranker to look at all the retrieved candidates together, in context of the actual question, and sort them by true relevance. That's what Cohere's cross-encoder does — and it changes everything.
+- 🔀 **Hybrid Retrieval** — BM25 + vector search run in parallel and merge via weighted ensemble. You get keyword precision and semantic understanding in every query.
+- 🏆 **Cohere Reranking** — A cross-encoder reranker sees the full query alongside every retrieved chunk simultaneously, ranking by true relevance rather than isolated cosine similarity.
+- 📂 **Multi-format Ingestion** — Upload PDFs, CSVs, and TXT files. Documents are chunked, indexed into ChromaDB, and immediately queryable.
+- 🔒 **Auth + User Isolation** — JWT authentication with per-user document namespacing. No cross-user data leakage.
+- 📊 **Analytics Dashboard** — Query history, usage patterns, and document indexing status tracked out of the box.
 
-**DataMind is what I built to actually get RAG right.**
+For **end users**:
 
-Hybrid retrieval. Cohere reranking. Streaming agent that shows its reasoning in real time. A proper UI that makes the whole thing usable. Built to understand the problem deeply, not to ship a demo.
+- 🤖 **Natural Language Queries** — Ask questions in plain English, no SQL or search syntax required.
+- 🧠 **Live Reasoning Steps** — Watch the agent think in real time: searching, reranking, generating. Each step streams as it happens.
+- 📌 **Source Attribution** — Every answer includes the exact document chunks it was built from, with their rerank scores, so you can verify what you're reading.
+- 🗑️ **Document Management** — Upload, track indexing status, and delete documents from a clean UI.
 
----
+## ⚡️ Quickstart in 4 steps
+
+- **Step 1**: Clone the repo
+
+    ```bash
+    git clone https://github.com/shashank-poola/rag-agent.git
+    cd rag-agent
+    ```
+
+<br/>
+
+- **Step 2**: Install dependencies
+
+    **Backend** (requires Python 3.12+ and [uv](https://docs.astral.sh/uv/)):
+
+    ```bash
+    uv sync
+    ```
+
+    **Frontend** (requires Node.js 18+):
+
+    ```bash
+    cd web && npm install
+    ```
+
+<br/>
+
+- **Step 3**: Configure environment variables
+
+    Create `.env` in the project root:
+
+    ```env
+    # LLM — get from console.groq.com
+    GROQ_API_KEY=your_groq_api_key
+    LLM_MODEL=llama-3.3-70b-versatile
+
+    # Embeddings — get from aistudio.google.com
+    GEMINI_API_KEY=your_gemini_api_key
+    EMBEDDING_MODEL=gemini-embedding-001
+
+    # Reranking — get from cohere.com
+    COHERE_API_KEY=your_cohere_api_key
+    COHERE_RERANK_MODEL=rerank-english-v3.0
+
+    # Vector Store — get from trychroma.com
+    CHROMA_API_KEY=your_chroma_api_key
+    CHROMA_TENANT=your_tenant
+    CHROMA_DATABASE=your_database
+    CHROMA_COLLECTION=your_collection
+
+    # Auth
+    SECRET_KEY=any_long_random_string_here
+    ALGORITHM=HS256
+    ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+    # Database (SQLite by default)
+    DATABASE_URL=sqlite:///./datamind.db
+
+    # Retrieval weights
+    BM25_WEIGHT=0.4
+    VECTOR_WEIGHT=0.6
+    CHUNK_SIZE=1000
+    CHUNK_OVERLAP=200
+    ```
+
+    Create `web/.env.local`:
+
+    ```env
+    NEXT_PUBLIC_API_URL=http://localhost:8000
+    ```
+
+<br/>
+
+- **Step 4**: Run the app
+
+    **Backend:**
+
+    ```bash
+    uv run python main.py
+    # API at http://localhost:8000
+    # Swagger docs at http://localhost:8000/docs
+    ```
+
+    **Frontend (new terminal):**
+
+    ```bash
+    cd web && npm run dev
+    # UI at http://localhost:3000
+    ```
 
 ## How It Works
 
@@ -62,212 +161,20 @@ Document Upload
           Streamed response + sources + latency
 ```
 
-The insight: retrieval quality matters more than model quality. A great model with bad retrieval gives bad answers. A decent model with precise retrieval gives great answers. This architecture optimizes for retrieval first.
-
----
-
-## What It Does
-
-**Hybrid Retrieval**
-Runs BM25 and semantic vector search in parallel. Merges results using a weighted ensemble (BM25 × 0.4, vector × 0.6). Falls back to vector-only if no BM25 index exists yet. You get keyword precision AND semantic understanding in every query.
-
-**Cohere Reranking**
-After the ensemble merge, a cross-encoder reranker sees the full query alongside every candidate chunk simultaneously. Unlike cosine similarity (query vs. chunk in isolation), the reranker understands the question in context of the answer — which is how humans actually judge relevance.
-
-**Streaming Reasoning UI**
-The agent streams its reasoning steps in real time via Server-Sent Events. Watch it think: searching, analyzing, generating. Each step appears as it happens. After the response, reasoning collapses into a "show steps" toggle. Answers feel trustworthy because you see the work.
-
-**Source Attribution**
-Every answer includes the exact document chunks it was built from, with their Cohere rerank scores. You know not just what the answer is, but where it came from and how confident the retrieval was.
-
-**Document Management**
-Upload PDFs, CSVs, and TXT files. Track indexing status per document (pending → indexing → indexed → failed). Delete individual documents. Everything is isolated per user.
-
-**Auth + Analytics**
-JWT-based authentication. Per-user document isolation. Analytics dashboard with query history and usage patterns.
-
----
-
-## Stack
-
-
-| Layer          | Technology                             | Why                                  |
-| -------------- | -------------------------------------- | ------------------------------------ |
-| LLM            | Groq — `llama-3.3-70b-versatile`       | Fast inference, strong reasoning     |
-| Embeddings     | Google Gemini — `gemini-embedding-001` | High quality, multimodal-ready       |
-| Vector Store   | ChromaDB Cloud                         | Managed, no infra to run             |
-| Keyword Search | BM25 (`rank-bm25`)                     | Exact match, zero latency overhead   |
-| Reranker       | Cohere — `rerank-english-v3.0`         | Cross-encoder, context-aware ranking |
-| Backend        | FastAPI + LangChain + SQLAlchemy       | Fast, typed, composable              |
-| Auth           | JWT (`python-jose`)                    | Stateless, standard                  |
-| Frontend       | Next.js 16 + React 19 + Tailwind v4    | App router, streaming-ready          |
-| Font           | Onest (Google Fonts)                   | Clean, modern                        |
-| Icons          | Nucleo Glass                           | Premium SVG icon set                 |
-
-
----
-
-## Project Structure
-
-```
-rag-agent/
-├── main.py                      # Uvicorn entrypoint (port 8000)
-├── pyproject.toml               # Python deps, managed with uv
-├── src/rag_agent/
-│   ├── api/
-│   │   ├── app.py               # FastAPI app, CORS, router registration
-│   │   ├── dependencies.py      # Auth dependency injection
-│   │   └── routes/
-│   │       ├── auth.py          # /api/v1/auth/* — signup, login
-│   │       ├── documents.py     # /api/v1/documents/* — upload, list, delete
-│   │       ├── query.py         # /api/v1/query/stream — SSE streaming
-│   │       └── analytics.py     # /api/v1/analytics/* — usage data
-│   ├── core/
-│   │   ├── config.py            # Pydantic settings — all env vars typed
-│   │   └── security.py          # JWT encode/decode, password hashing
-│   ├── db/
-│   │   ├── database.py          # SQLAlchemy engine + session factory
-│   │   ├── models.py            # ORM models (User, Document, Query)
-│   │   └── repository.py        # Database query layer
-│   ├── ingestion/               # Document loaders + chunking pipeline
-│   ├── embeddings/              # Gemini embedding wrapper
-│   ├── vectorstore/             # ChromaDB Cloud client
-│   ├── retrieval/
-│   │   ├── hybrid_retriever.py  # BM25 + vector ensemble (the core)
-│   │   ├── bm25_retriever.py    # BM25 index builder + search
-│   │   ├── reranker.py          # Cohere cross-encoder reranking
-│   │   └── retriever.py        # Base retriever interface
-│   ├── generation/              # LLM wrapper + prompt templates
-│   ├── chain/                   # RAG chain + SSE streaming logic
-│   └── schemas/                 # Pydantic request/response models
-│
-└── web/                         # Next.js 16 frontend
-    └── src/
-        ├── app/                 # App router — auth + dashboard pages
-        ├── components/
-        │   ├── Sidebar.tsx      # Nav — Chat, Documents, Analytics
-        │   └── chat/
-        │       ├── ChatWindow.tsx      # Main chat container
-        │       ├── ChatInput.tsx       # Textarea + send (SSE-aware)
-        │       ├── MessageBubble.tsx   # User + assistant message display
-        │       ├── ThinkingSteps.tsx   # Live reasoning animation
-        │       └── SourcesPanel.tsx    # Retrieved chunks + scores
-        ├── hooks/
-        │   ├── useChat.ts       # SSE stream state + message management
-        │   ├── useDocuments.ts  # Document list + upload/delete
-        │   └── useAnalytics.ts  # Analytics data
-        ├── lib/api/             # Typed fetch clients + SSE parser
-        └── types/               # Shared TypeScript interfaces
-```
-
----
-
-## Setup
-
-### Prerequisites
-
-- Python 3.12+
-- Node.js 18+
-- `[uv](https://docs.astral.sh/uv/)` — Python package manager (replaces pip/poetry)
-
-### 1. Clone
-
-```bash
-git clone https://github.com/shashank-poola/rag-agent.git
-cd rag-agent
-```
-
-### 2. Install dependencies
-
-**Backend:**
-
-```bash
-uv sync
-```
-
-**Frontend:**
-
-```bash
-cd web && npm install
-```
-
-### 3. Environment variables
-
-Create `.env` in the project root:
-
-```env
-# LLM — get from console.groq.com
-GROQ_API_KEY=your_groq_api_key
-LLM_MODEL=llama-3.3-70b-versatile
-
-# Embeddings — get from aistudio.google.com
-GEMINI_API_KEY=your_gemini_api_key
-EMBEDDING_MODEL=gemini-embedding-001
-
-# Reranking — get from cohere.com
-COHERE_API_KEY=your_cohere_api_key
-COHERE_RERANK_MODEL=rerank-english-v3.0
-
-# Vector Store — get from trychroma.com
-CHROMA_API_KEY=your_chroma_api_key
-CHROMA_TENANT=your_tenant
-CHROMA_DATABASE=your_database
-CHROMA_COLLECTION=your_collection
-
-# Auth
-SECRET_KEY=any_long_random_string_here
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-
-# Database (SQLite by default, swap for Postgres in prod)
-DATABASE_URL=sqlite:///./datamind.db
-
-# Retrieval weights — these are the defaults, tune as needed
-BM25_WEIGHT=0.4
-VECTOR_WEIGHT=0.6
-CHUNK_SIZE=1000
-CHUNK_OVERLAP=200
-```
-
-Create `web/.env.local`:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-### 4. Run
-
-**Backend:**
-
-```bash
-uv run python main.py
-# API live at http://localhost:8000
-# Docs at http://localhost:8000/docs
-```
-
-**Frontend (new terminal):**
-
-```bash
-cd web && npm run dev
-# UI at http://localhost:3000
-```
-
----
+Retrieval quality matters more than model quality. A great model with bad retrieval gives bad answers. This architecture optimizes retrieval first.
 
 ## API Reference
-
 
 | Method   | Endpoint                   | Description                       |
 | -------- | -------------------------- | --------------------------------- |
 | `POST`   | `/api/v1/auth/signup`      | Register new user                 |
-| `POST`   | `/api/v1/auth/login`       | Login — returns JWT               |
+| `POST`   | `/api/v1/auth/login`       | Login, returns JWT                |
 | `GET`    | `/api/v1/documents`        | List uploaded documents           |
 | `POST`   | `/api/v1/documents/upload` | Upload document (PDF / CSV / TXT) |
-| `DELETE` | `/api/v1/documents/{id}`   | Delete document + its index       |
+| `DELETE` | `/api/v1/documents/{id}`   | Delete document and its index     |
 | `POST`   | `/api/v1/query/stream`     | Stream RAG query via SSE          |
-| `GET`    | `/api/v1/analytics`        | Query analytics + history         |
+| `GET`    | `/api/v1/analytics`        | Query analytics and history       |
 | `GET`    | `/health`                  | Health check                      |
-
 
 ### SSE stream format
 
@@ -283,30 +190,29 @@ data: {"event": "done",     "latency_ms": 2341}
 data: {"event": "error",    "message": "..."}
 ```
 
----
+## 📒 Stack
 
-## Retrieval Design
+### Backend
 
-This is the part that actually matters.
+| Layer          | Technology                             | Why                                  |
+| -------------- | -------------------------------------- | ------------------------------------ |
+| LLM            | Groq — `llama-3.3-70b-versatile`       | Fast inference, strong reasoning     |
+| Embeddings     | Google Gemini — `gemini-embedding-001` | High quality, multimodal-ready       |
+| Vector Store   | ChromaDB Cloud                         | Managed, no infra to run             |
+| Keyword Search | BM25 (`rank-bm25`)                     | Exact match, zero latency overhead   |
+| Reranker       | Cohere — `rerank-english-v3.0`         | Cross-encoder, context-aware ranking |
+| Framework      | FastAPI + LangChain + SQLAlchemy       | Fast, typed, composable              |
+| Auth           | JWT (`python-jose`)                    | Stateless, standard                  |
 
-**Why hybrid search?**
+### Frontend
 
-Semantic search finds meaning. BM25 finds words. A query like *"what does section 4.2 say about indemnification?"* — semantic search returns anything vaguely about indemnification. BM25 finds "section 4.2" exactly. You need both.
+| Layer     | Technology                          |
+| --------- | ----------------------------------- |
+| Framework | Next.js 16 + React 19               |
+| Styling   | Tailwind CSS v4                     |
+| Client    | Typed fetch + SSE stream parser     |
 
-Scores are merged with configurable weights:
-
-```
-final_score = (bm25_score × 0.4) + (vector_score × 0.6)
-```
-
-**Why reranking?**
-
-Cosine similarity scores each chunk against the query independently. The reranker sees all candidates together, alongside the full query, and scores them as a cross-encoder. It understands that "the liability cap is $1M" is more relevant to "what is the liability limit?" than "the parties agree to indemnify each other" even if the latter has higher cosine similarity. This is the biggest single quality improvement in the stack.
-
----
-
-## Supported Formats
-
+## 📄 Supported Formats
 
 | Format | Notes                      |
 | ------ | -------------------------- |
@@ -314,7 +220,12 @@ Cosine similarity scores each chunk against the query independently. The reranke
 | `.csv` | Row-level chunking         |
 | `.txt` | Plain text chunking        |
 
+## ⛹️‍♀️ Join the Community
 
-## License
+- Star the repo to stay updated
+- Open an issue for bugs or feature requests
+- Fork and contribute — PRs are welcome
 
-MIT — use it, fork it, build on it.
+## 📄 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
