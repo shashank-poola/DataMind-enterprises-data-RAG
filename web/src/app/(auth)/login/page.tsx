@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import signupbg from "../../../../public/images/signupbg.gif";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { apiLogin } from "@/lib/api";
@@ -35,7 +36,7 @@ export default function LoginPage() {
       {/* ── Left: visual ── */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-between p-10">
         <Image
-          src="/images/signupbg.gif"
+          src={signupbg}
           alt=""
           fill
           unoptimized

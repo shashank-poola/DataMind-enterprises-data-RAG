@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import logoImg from "../../public/images/logo.jpg";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { clearSession, getUser } from "@/lib/auth";
@@ -53,7 +54,7 @@ export default function Sidebar() {
           style={{ border: "1px solid #1E1D1C" }}
         >
           <Image
-            src="/images/logo.jpg"
+            src={logoImg}
             alt="DataMind"
             width={32}
             height={32}

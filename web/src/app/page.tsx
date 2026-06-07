@@ -1,5 +1,6 @@
 import Link from "next/link";
 import "./landing.css";
+import editbg from "../../public/images/editbg.jpg";
 
 const FEATURES = [
   {
@@ -72,7 +73,7 @@ export default function Home() {
       <section
         className="relative min-h-screen flex flex-col"
         style={{
-          backgroundImage: "url(/images/editbg.jpg)",
+          backgroundImage: `url(${editbg.src})`,
           backgroundSize: "cover",
           backgroundPosition: "center 20%",
         }}

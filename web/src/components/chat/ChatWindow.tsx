@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import logoImg from "../../../public/images/logo.jpg";
 import { useChat } from "@/hooks/useChat";
 import { ChatInput } from "./ChatInput";
 import { MessageBubble } from "./MessageBubble";
@@ -26,7 +27,7 @@ function ChatEmptyState() {
         }}
       >
         <Image
-          src="/images/logo.jpg"
+          src={logoImg}
           alt="DataMind"
           width={80}
           height={80}
